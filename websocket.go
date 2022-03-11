@@ -7,7 +7,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -32,7 +31,7 @@ func (c *Client) New() {
 func (c *Client) Connect() {
 	for _, sock := range c.GetChannelSocks(c.Channel) {
 		if sock.Id == c.Id {
-			fmt.Println(color.Bold + color.Red + "This ID is already taken" + color.Reset)
+			WriteError("ID already taken\n")
 			os.Exit(1)
 		}
 	}
@@ -57,12 +56,12 @@ func (c *Client) SetHandler() {
 	}
 
 	c.Socket.OnDisconnected = func(err error) {
-		fmt.Println(color.Bold + color.Red + "Client is disconnected" + color.Reset)
+		WriteError("Client disconnected\n")
 		os.Exit(1)
 	}
 
 	c.Socket.OnConnectError = func(err error) {
-		fmt.Println(color.Bold + color.Red + "Client is unable to connect" + color.Reset)
+		WriteError("Client is unable to connect\n")
 		os.Exit(1)
 	}
 }
@@ -77,14 +76,14 @@ func (c *Client) Ready() {
 			"data": "",
 		})
 	}()
-	fmt.Println(color.Bold + color.Green + "Ready!" + color.Reset)
+	WriteSuccess("Ready!\n")
 
 	for {
 		command := HandleStdin("")
 		commandSplit := strings.SplitN(command, " ", 2)
 
 		if commandSplit == nil {
-			fmt.Println(color.Bold + color.Red + "Invalid command format" + color.Reset)
+			WriteError("Invalid command format\n")
 			continue
 		}
 
@@ -98,7 +97,7 @@ func (c *Client) Ready() {
 // Send message to other instances
 func (c *Client) SendMessageHandler(args []string) {
 	if len(args) == 0 {
-		fmt.Println(color.Bold + color.Red + "Invalid argument" + color.Reset)
+		WriteError("Invalid argument\n")
 		return
 	}
 
@@ -108,10 +107,11 @@ func (c *Client) SendMessageHandler(args []string) {
 
 	err := c.Socket.SendJSON(websocketMessage)
 	if err != nil {
-		log.Fatal(color.Bold + color.Red + "Failed to send message" + color.Reset)
+		WriteError("Failed to send\n")
+		os.Exit(1)
 	}
 
-	fmt.Println(color.Bold + color.Green + "Message sent" + color.Reset)
+	WriteSuccess("Message sent\n")
 }
 
 // Handle messages from other instances

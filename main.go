@@ -56,3 +56,13 @@ func HandleStdin(text string) string {
 
 	return strings.TrimSpace(input)
 }
+
+// Write error message to stdout
+func WriteError(text string) {
+	fmt.Print(color.Bold + color.Red + text + color.Reset)
+}
+
+// Write success message to stdout
+func WriteSuccess(text string) {
+	fmt.Print(color.Bold + color.Green + text + color.Reset)
+}
