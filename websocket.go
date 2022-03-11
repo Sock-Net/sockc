@@ -74,11 +74,13 @@ func (c *Client) SetHandler() {
 func (c *Client) Ready() {
 	// Ping every 30 second
 	go func() {
-		c.Socket.SendJSON(map[string]interface{}{
-			"type": -1,
-			"data": "",
-		})
-		time.Sleep(15 * time.Second)
+		for {
+			c.Socket.SendJSON(map[string]interface{}{
+				"type": -1,
+				"data": "",
+			})
+			time.Sleep(15 * time.Second)
+		}
 	}()
 	WriteSuccess("Ready!\n")
 
