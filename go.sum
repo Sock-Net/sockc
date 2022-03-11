@@ -1,0 +1,6 @@
+github.com/Sock-Net/gows v0.2.0 h1:EYtWuLWekwZVxGVzwVeQE8vkc1JtvVn5vWi74AOmMsc=
+github.com/Sock-Net/gows v0.2.0/go.mod h1:jVWbx5HivmNOupH5/9N+vW+efa3cG5EgaS/m4sVgqAk=
+github.com/TwiN/go-color v1.1.0 h1:yhLAHgjp2iAxmNjDiVb6Z073NE65yoaPlcki1Q22yyQ=
+github.com/TwiN/go-color v1.1.0/go.mod h1:aKVf4e1mD4ai2FtPifkDPP5iyoCwiK08YGzGwerjKo0=
+github.com/gorilla/websocket v1.4.2 h1:+/TMaTYc4QFitKJxsQ7Yye35DkWvkdLcvGKqM+x0Ufc=
+github.com/gorilla/websocket v1.4.2/go.mod h1:YR8l580nyteQvAITg2hZ9XVh4b55+EU/adAjf1fMHhE=
