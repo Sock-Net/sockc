@@ -1,0 +1,3 @@
+run-dev:
+go build .
+.\sockc.exe -secure=false

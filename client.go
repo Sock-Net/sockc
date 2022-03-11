@@ -4,14 +4,17 @@
 // https://opensource.org/licenses/MIT
 package main
 
-import "github.com/Sock-Net/gows"
+import (
+	"fmt"
+
+	"github.com/Sock-Net/gows"
+)
 
 // Client struct
 type Client struct {
 	SecureConnection         bool
 	Host, Channel, Token, Id string
 	Socket                   *gows.Socket
-	OnReady                  func() error
 }
 
 // Prepare websocket url for client
@@ -25,7 +28,7 @@ func (c *Client) PrepareUrl() string {
 		url += "://"
 	}
 
-	url += c.Host + "/" + c.Channel
+	url += c.Host + "/channel/" + c.Channel
 
 	if c.Token != "" {
 		query = append(query, "token="+c.Token)
@@ -44,6 +47,8 @@ func (c *Client) PrepareUrl() string {
 
 		url = url[:len(url)-1]
 	}
+
+	fmt.Println(url)
 
 	return url
 }
