@@ -90,6 +90,8 @@ func (c *Client) Ready() {
 		switch strings.ToLower(commandSplit[0]) {
 		case "message":
 			c.SendMessageHandler(commandSplit[1:])
+		case "list":
+			c.ListInstancesHandler()
 		}
 	}
 }
@@ -117,4 +119,17 @@ func (c *Client) SendMessageHandler(args []string) {
 // Handle messages from other instances
 func HandleMessage(message *WebSocketMessage) {
 	fmt.Println("[" + color.Bold + color.Green + "@" + message.From + color.Reset + "]: " + message.Message)
+}
+
+// List all instances in channel
+func (c *Client) ListInstancesHandler() {
+	instances := c.GetChannelSocks(c.Channel)
+	if len(instances) == 0 {
+		WriteError("No instance found\n")
+		return
+	}
+
+	for _, instance := range instances {
+		fmt.Println("[" + color.Bold + color.Green + instance.Id + color.Reset + ":" + color.Bold + color.Yellow + instance.Channel + color.Reset + "] at " + color.Blue + instance.CreatedAt.String() + color.Reset)
+	}
 }
