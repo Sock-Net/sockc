@@ -5,9 +5,11 @@
 package main
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"os"
+	"path"
 	"strings"
 	"time"
 
@@ -52,6 +54,8 @@ func (c *Client) SetHandler() {
 		switch websocketMessage.Type {
 		case 1: // Send message
 			HandleMessage(websocketMessage)
+		case 2: // Send message
+			HandleFile(websocketMessage)
 		}
 	}
 
@@ -70,11 +74,11 @@ func (c *Client) SetHandler() {
 func (c *Client) Ready() {
 	// Ping every 30 second
 	go func() {
-		time.Sleep(30 * time.Second)
 		c.Socket.SendJSON(map[string]interface{}{
 			"type": -1,
 			"data": "",
 		})
+		time.Sleep(15 * time.Second)
 	}()
 	WriteSuccess("Ready!\n")
 
@@ -90,6 +94,8 @@ func (c *Client) Ready() {
 		switch strings.ToLower(commandSplit[0]) {
 		case "message":
 			c.SendMessageHandler(commandSplit[1:])
+		case "file":
+			c.SendFileHandler(commandSplit[1:])
 		case "list":
 			c.ListInstancesHandler()
 		}
@@ -99,7 +105,7 @@ func (c *Client) Ready() {
 // Send message to other instances
 func (c *Client) SendMessageHandler(args []string) {
 	if len(args) == 0 {
-		WriteError("Invalid argument\n")
+		WriteError("Invalid argument(s)\n")
 		return
 	}
 
@@ -132,4 +138,49 @@ func (c *Client) ListInstancesHandler() {
 	for _, instance := range instances {
 		fmt.Println("[" + color.Bold + color.Green + instance.Id + color.Reset + ":" + color.Bold + color.Yellow + instance.Channel + color.Reset + "] at " + color.Blue + instance.CreatedAt.String() + color.Reset)
 	}
+}
+
+// Send file to other instances
+func (c *Client) SendFileHandler(args []string) {
+	if len(args) == 0 {
+		WriteError("Invalid argument(s)\n")
+		return
+	}
+
+	fileData, err := os.ReadFile(args[0])
+	if err != nil {
+		WriteError(err.Error() + "\n")
+		return
+	}
+
+	fileName := path.Base(args[0])
+
+	websocketMessage := new(WebSocketMessage)
+	websocketMessage.Type = 2
+	websocketMessage.Message = fileName + ":" + base64.StdEncoding.EncodeToString(fileData)
+
+	err = c.Socket.SendJSON(websocketMessage)
+	if err != nil {
+		WriteError("Failed to send\n")
+		os.Exit(1)
+	}
+
+	WriteSuccess("File sent\n")
+}
+
+// Handle files from other instances
+func HandleFile(message *WebSocketMessage) {
+	fileSplitted := strings.SplitN(message.Message, ":", 2)
+	if len(fileSplitted) < 2 {
+		return
+	}
+
+	fileName := fileSplitted[0]
+	fileData, err := base64.StdEncoding.DecodeString(fileSplitted[1])
+	if err != nil {
+		return
+	}
+
+	os.WriteFile(fileName, fileData, os.ModeAppend)
+	fmt.Println("[" + color.Bold + color.Green + "@" + message.From + color.Reset + "] sent you a file (" + color.Bold + color.Blue + fileName + color.Reset + ")")
 }
