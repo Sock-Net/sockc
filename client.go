@@ -5,8 +5,6 @@
 package main
 
 import (
-	"fmt"
-
 	"github.com/Sock-Net/gows"
 )
 
@@ -47,8 +45,6 @@ func (c *Client) PrepareUrl() string {
 
 		url = url[:len(url)-1]
 	}
-
-	fmt.Println(url)
 
 	return url
 }

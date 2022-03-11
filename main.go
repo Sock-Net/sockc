@@ -17,6 +17,7 @@ import (
 )
 
 func main() {
+	// Setup connection options
 	host := HandleStdin(color.Bold + "(1) Host to connect: " + color.Reset)
 	channel := HandleStdin(color.Bold + "(2) Channel to connect: " + color.Reset)
 	id := HandleStdin(color.Bold + "(3) Id for yourself: " + color.Reset)
@@ -36,15 +37,13 @@ func main() {
 	client.SetHandler()
 	client.Connect()
 
+	// Wait for interrupt
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
 	<-interrupt
 }
 
-func HandleMessage(message *WebSocketMessage) {
-	fmt.Println(message.Message)
-}
-
+// Write text and read string until new line
 func HandleStdin(text string) string {
 	fmt.Print(text)
 
