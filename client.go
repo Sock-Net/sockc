@@ -48,3 +48,17 @@ func (c *Client) PrepareUrl() string {
 
 	return url
 }
+
+// Prepare http url for client
+func (c *Client) PrepareHTTPUrl(path string) string {
+	url := "http"
+
+	if c.SecureConnection {
+		url += "s://"
+	} else {
+		url += "://"
+	}
+
+	url += c.Host + "/api/channel/" + c.Channel + path
+	return url
+}

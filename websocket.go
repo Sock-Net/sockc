@@ -30,6 +30,13 @@ func (c *Client) New() {
 
 // Connect to websocket
 func (c *Client) Connect() {
+	for _, sock := range c.GetChannelSocks(c.Channel) {
+		if sock.Id == c.Id {
+			fmt.Println(color.Bold + color.Red + "This ID is already taken" + color.Reset)
+			os.Exit(1)
+		}
+	}
+
 	c.Socket.Connect()
 	c.Ready()
 }
@@ -53,6 +60,11 @@ func (c *Client) SetHandler() {
 		fmt.Println(color.Bold + color.Red + "Client is disconnected" + color.Reset)
 		os.Exit(1)
 	}
+
+	c.Socket.OnConnectError = func(err error) {
+		fmt.Println(color.Bold + color.Red + "Client is unable to connect" + color.Reset)
+		os.Exit(1)
+	}
 }
 
 // Minimal shell for sockc
@@ -65,23 +77,34 @@ func (c *Client) Ready() {
 			"data": "",
 		})
 	}()
+	fmt.Println(color.Bold + color.Green + "Ready!" + color.Reset)
 
 	for {
 		command := HandleStdin("")
+		commandSplit := strings.SplitN(command, " ", 2)
 
-		switch strings.ToLower(command) {
+		if commandSplit == nil {
+			fmt.Println(color.Bold + color.Red + "Invalid command format" + color.Reset)
+			continue
+		}
+
+		switch strings.ToLower(commandSplit[0]) {
 		case "message":
-			c.SendMessageHandler()
+			c.SendMessageHandler(commandSplit[1:])
 		}
 	}
 }
 
 // Send message to other instances
-func (c *Client) SendMessageHandler() {
-	message := HandleStdin(color.Bold + "Message: " + color.Reset)
+func (c *Client) SendMessageHandler(args []string) {
+	if len(args) == 0 {
+		fmt.Println(color.Bold + color.Red + "Invalid argument" + color.Reset)
+		return
+	}
+
 	websocketMessage := new(WebSocketMessage)
 	websocketMessage.Type = 1
-	websocketMessage.Message = message
+	websocketMessage.Message = args[0]
 
 	err := c.Socket.SendJSON(websocketMessage)
 	if err != nil {
