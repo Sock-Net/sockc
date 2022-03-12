@@ -52,6 +52,8 @@ func (c *Client) SetHandler() {
 		}
 
 		switch websocketMessage.Type {
+		case 0: // Update current instance id
+			c.Id = websocketMessage.Message
 		case 1: // Send message
 			HandleMessage(websocketMessage)
 		case 2: // Send message
@@ -83,6 +85,12 @@ func (c *Client) Ready() {
 		}
 	}()
 	WriteSuccess("Ready!\n")
+
+	// Get current id
+	c.Socket.SendJSON(map[string]interface{}{
+		"type": 0,
+		"data": "",
+	})
 
 	for {
 		command := HandleStdin("")
